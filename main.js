@@ -1,3 +1,5 @@
+import conditions from "./conditions.js";
+
 const apiKey = 'ad81299e02d24ad1bc2194250232603';
 
 // Получаем используемые элементы
@@ -11,10 +13,7 @@ function removeCard() {
 }
 function showError(errorMessage) {
 
-   html = `<div class="error-block parent-block">
-               <div class="error-title">${errorMessage}</div>
-               <div class="close-btn" onclick="removeErrorBlock(this)">&times;</div>
-            </div>`
+   const html = `<div class="error-block parent-block"><div class="error-title">${errorMessage}</div></div>`
 
    //* Выводим карточку при ошибке 
    header.insertAdjacentHTML('afterend', html)
@@ -25,17 +24,14 @@ function showError(errorMessage) {
       errorBlock.remove()
    }, 3000);
 }
-function removeErrorBlock(btn) {
-   btn.closest('.parent-block').remove()
-}
-function showCard({name, country, temp, condition}) {
-   html = `<div class="card">
-            <div class="card__title">${name} <span>${country}</span></div>
+function showCard({ name, country, temp, condition, img }) {
+   const html = `<div class="card">
+            <div class="card__title">${name || ''} <span>${country || ''}</span></div>
             <div class="card__body">
-               <div class="card__weather">${temp}°с</div>
-               <div class="card__img"><img src="img/8.png" alt=""></div>
+               <div class="card__weather">${temp || ''}°с</div>
+               <div class="card__img"><img src="${img || ''} " alt=""></div>
             </div>
-            <div class="card-desc">${condition}</div>
+            <div class="card-desc">${condition || ''}</div>
          </div>`
 
    header.insertAdjacentHTML('afterend', html)
@@ -65,11 +61,16 @@ form.addEventListener('submit', async function (e) {
       //* Еслм нет ошибки выодим карточку
       removeCard()
 
+      const info = conditions.find(obj => obj.code === data.current.condition.code)
+
+      const condition = data.current.is_day ? info.languages[23]['day_text'] : info.languages[23]['night_text']
+
       const weatherData = {
          name: data.location.name,
          country: data.location.country,
          temp: data.current.temp_c,
-         condition: data.current.condition.text
+         condition: condition,
+         img: data.current.condition.icon
       }
 
       showCard(weatherData)
